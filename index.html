@@ -42,6 +42,7 @@
 
 <div style="display: flex; gap: 10px;">
   <button id="resetBtn">Reset</button>
+  <button id="downloadBtn">Download</button>
 </div>
 
 <style>
@@ -93,7 +94,7 @@ canvas {
   cursor: grab;
 }
 
-#resetBtn {
+#resetBtn, #downloadBtn {
   margin-top: 15px;
   background: white;
   border: 1px solid #bbb;
@@ -102,7 +103,7 @@ canvas {
   border-radius: 8px;
   cursor: pointer;
 }
-#resetBtn:hover {
+#resetBtn:hover, #downloadBtn:hover {
   background: #f0f0f0;
 }
 
@@ -120,6 +121,7 @@ const sizeSlider = document.getElementById("sizeSlider");
 const uploadRow = document.getElementById("uploadRow");
 const canvasWrapper = document.getElementById("canvasWrapper");
 const resetBtn = document.getElementById("resetBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
 /* POSTER IMAGE */
 const poster = new Image();
@@ -288,6 +290,16 @@ resetBtn.addEventListener("click", () => {
 
   draw();
   updateUploadRowPosition();
+});
+
+/* Download */
+downloadBtn.addEventListener("click", () => {
+  const link = document.createElement("a");
+  link.download = "My_Poster.png";
+  canvas.toBlob(blob => {
+    link.href = URL.createObjectURL(blob);
+    link.click();
+  });
 });
 
 /* Reposition buttons on resize */
