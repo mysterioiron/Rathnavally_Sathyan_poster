@@ -294,10 +294,42 @@ resetBtn.addEventListener("click", () => {
 
 /* Download */
 downloadBtn.addEventListener("click", () => {
-  const link = document.createElement("a");
-  link.download = "My_Poster.png";
-  canvas.toBlob(blob => {
+  if(!frame.img) return; // optional: only allow if an image is uploaded
+
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext("2d");
+
+  tempCtx.drawImage(poster, 0, 0);
+
+  if(frame.img){
+    tempCtx.save();
+    tempCtx.beginPath();
+    tempCtx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
+    tempCtx.clip();
+
+    tempCtx.drawImage(
+      frame.img,
+      posX,
+      posY,
+      frame.img.width * imgScale,
+      frame.img.height * imgScale
+    );
+
+    tempCtx.restore();
+  }
+
+  tempCtx.beginPath();
+  tempCtx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
+  tempCtx.lineWidth = 2;
+  tempCtx.strokeStyle = "#fff";
+  tempCtx.stroke();
+
+  tempCanvas.toBlob(blob => {
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
+    link.download = "Rathnavalli_Sathyan.png";
     link.click();
   });
 });
