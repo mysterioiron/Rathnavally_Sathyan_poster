@@ -5,6 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mobile Poster Editor</title>
 
+<!-- Open Graph metadata for WhatsApp/Link Preview -->
+<meta property="og:title" content="Check out my poster!">
+<meta property="og:description" content="Create and download your own poster using this editor.">
+<meta property="og:image" content="https://github.com/RathnavalliSathyan-make-your-poster/poster_generator/blob/main/WhatsApp%20Image%202025-11-22%20at%2007.34.17_e0b8aebb.jpg?raw=true">
+<meta property="og:url" content="https://rathnavallisathyan-make-your-poster.github.io/poster_generator/">
+<meta property="og:type" content="website">
+
+<!-- Optional: Twitter card preview -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Check out my poster!">
+<meta name="twitter:description" content="Create and download your own poster using this editor.">
+<meta name="twitter:image" content="https://github.com/RathnavalliSathyan-make-your-poster/poster_generator/blob/main/WhatsApp%20Image%202025-11-22%20at%2007.34.17_e0b8aebb.jpg?raw=true">
+</head>
+<body>
+
+<h2>Upload or Capture a Picture</h2>
+
+<div class="slider-container">
+  <label for="sizeSlider">Size:</label>
+  <input type="range" id="sizeSlider" min="0.3" max="3" step="0.01" value="1">
+</div>
+
+<div class="canvas-wrapper" id="canvasWrapper">
+
+  <div class="upload-row" id="uploadRow">
+    <label class="upload-btn" for="imgUploadInput">📁 Upload</label>
+    <button id="cameraBtn">📸 Camera</button>
+  </div>
+
+  <canvas id="finalCanvas"></canvas>
+
+  <input type="file" id="imgUploadInput" accept="image/*">
+  <input type="file" id="imgCameraInput" accept="image/*" capture="environment">
+</div>
+
+<div style="display: flex; gap: 10px;">
+  <button id="downloadBtn">Download</button>
+  <button id="resetBtn">Reset</button>
+</div>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -73,33 +113,6 @@ canvas {
   gap: 8px;
 }
 </style>
-</head>
-<body>
-
-<h2>Upload or Capture a Picture</h2>
-
-<div class="slider-container">
-  <label for="sizeSlider">Size:</label>
-  <input type="range" id="sizeSlider" min="0.3" max="3" step="0.01" value="1">
-</div>
-
-<div class="canvas-wrapper" id="canvasWrapper">
-
-  <div class="upload-row" id="uploadRow">
-    <label class="upload-btn" for="imgUploadInput">📁 Upload</label>
-    <button id="cameraBtn">📸 Camera</button>
-  </div>
-
-  <canvas id="finalCanvas"></canvas>
-
-  <input type="file" id="imgUploadInput" accept="image/*">
-  <input type="file" id="imgCameraInput" accept="image/*" capture="environment">
-</div>
-
-<div style="display: flex; gap: 10px;">
-  <button id="downloadBtn">Download</button>
-  <button id="resetBtn">Reset</button>
-</div>
 
 <script>
 const canvas = document.getElementById("finalCanvas");
@@ -112,7 +125,7 @@ let downloadCount = 1;
 
 /* POSTER IMAGE */
 const poster = new Image();
-poster.src = "WhatsApp Image 2025-11-22 at 07.34.17_e0b8aebb.jpg";
+poster.src = "https://github.com/RathnavalliSathyan-make-your-poster/poster_generator/blob/main/WhatsApp%20Image%202025-11-22%20at%2007.34.17_e0b8aebb.jpg?raw=true";
 
 /* FRAME ON POSTER */
 const frame = {
