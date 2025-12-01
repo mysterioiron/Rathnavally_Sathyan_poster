@@ -12,7 +12,7 @@
 <meta property="og:url" content="https://rathnavallisathyan-make-your-poster.github.io/poster_generator/">
 <meta property="og:type" content="website">
 
-<!-- Optional: Twitter card preview -->
+<!-- Twitter card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Check out my poster!">
 <meta name="twitter:description" content="Create and download your own poster using this editor.">
@@ -139,32 +139,26 @@ let imgScale = 1;
 let posX = 0, posY = 0;
 let isDragging = false;
 let startX = 0, startY = 0;
+let lastTouchDistance = null;
 
-/* Convert poster HQ coords → displayed canvas coords */
+/* Map poster HQ coords → displayed canvas coords */
 function mapToDisplayed(x, y) {
   const displayWidth = canvas.clientWidth;
   const factor = displayWidth / canvas.width;
   return { dx: x * factor, dy: y * factor };
 }
 
-/* Center the upload buttons on the circle */
+/* Center upload buttons on frame */
 function updateUploadRowPosition() {
   const p = mapToDisplayed(frame.x, frame.y);
-
   const buttons = uploadRow.getBoundingClientRect();
-  const wrapperRect = canvasWrapper.getBoundingClientRect();
-
   uploadRow.style.left = p.dx - buttons.width / 2 + "px";
   uploadRow.style.top  = p.dy - buttons.height / 2 + "px";
 }
 
 poster.onload = () => {
-  const w = poster.width;
-  const h = poster.height;
-
-  canvas.width = w;
-  canvas.height = h;
-
+  canvas.width = poster.width;
+  canvas.height = poster.height;
   draw();
   updateUploadRowPosition();
 };
@@ -186,7 +180,6 @@ function draw() {
       frame.img.width * imgScale,
       frame.img.height * imgScale
     );
-
     ctx.restore();
   }
 
@@ -206,49 +199,67 @@ function handleImageSelect(e){
   const img = new Image();
   img.onload = () => {
     frame.img = img;
-
     imgScale = 1;
     posX = frame.x - img.width/2;
     posY = frame.y - img.height/2;
-
     sizeSlider.value = 1;
     draw();
   };
-
   img.src = URL.createObjectURL(file);
   downloadCount = 1;
 }
 
-/* TOUCH drag */
-canvas.addEventListener("touchstart", e=>{
+/* Drag & Scale */
+canvas.addEventListener("touchstart", e => {
   if(!frame.img) return;
+
   if(e.touches.length === 1){
     isDragging = true;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
+  } else if(e.touches.length === 2){
+    lastTouchDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
   }
 });
 
-canvas.addEventListener("touchmove", e=>{
-  if(!frame.img || !isDragging) return;
+canvas.addEventListener("touchmove", e => {
+  if(!frame.img) return;
   e.preventDefault();
-  posX += e.touches[0].clientX - startX;
-  posY += e.touches[0].clientY - startY;
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
+
+  if(e.touches.length === 1 && isDragging){
+    posX += e.touches[0].clientX - startX;
+    posY += e.touches[0].clientY - startY;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  } else if(e.touches.length === 2){
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    if(lastTouchDistance){
+      imgScale *= dist / lastTouchDistance;
+      sizeSlider.value = imgScale;
+    }
+    lastTouchDistance = dist;
+  }
   draw();
 });
 
-canvas.addEventListener("touchend", ()=> isDragging = false);
+canvas.addEventListener("touchend", e => {
+  if(e.touches.length < 2) lastTouchDistance = null;
+  if(e.touches.length === 0) isDragging = false;
+});
 
-/* MOUSE drag for PC */
+/* Mouse drag */
 canvas.addEventListener("mousedown", e => {
   if (!frame.img) return;
   isDragging = true;
   startX = e.clientX;
   startY = e.clientY;
 });
-
 canvas.addEventListener("mousemove", e => {
   if (!frame.img || !isDragging) return;
   posX += e.clientX - startX;
@@ -257,12 +268,11 @@ canvas.addEventListener("mousemove", e => {
   startY = e.clientY;
   draw();
 });
-
 canvas.addEventListener("mouseup", () => isDragging = false);
 canvas.addEventListener("mouseleave", () => isDragging = false);
 
-/* Scale */
-sizeSlider.addEventListener("input", ()=>{
+/* Slider scale */
+sizeSlider.addEventListener("input", ()=> {
   imgScale = parseFloat(sizeSlider.value);
   draw();
 });
@@ -272,21 +282,25 @@ imgUploadInput.addEventListener("change", handleImageSelect);
 imgCameraInput.addEventListener("change", handleImageSelect);
 cameraBtn.addEventListener("click", ()=> imgCameraInput.click());
 
-/* HQ Download */
+/* Download */
 downloadBtn.addEventListener("click", () => {
-  const fileName =
-    "Rathnavalli_Sathyan_" + downloadCount + "_" + Date.now() + ".png";
+  if(!frame.img) return alert("Upload an image first!");
 
+  draw();
+  const fileName = "Rathnavalli_Sathyan_" + downloadCount + ".png";
   downloadCount++;
 
-  canvas.toBlob((blob) => {
-    const a = document.createElement("a");
+  canvas.toBlob(blob => {
+    if(!blob) return alert("Failed to generate image!");
     const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
+    document.body.appendChild(a);
     a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),500);
-  });
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, "image/png");
 });
 
 /* Reset */
@@ -296,12 +310,11 @@ resetBtn.addEventListener("click", () => {
   imgScale = 1;
   sizeSlider.value = 1;
   downloadCount = 1;
-
   draw();
   updateUploadRowPosition();
 });
 
-/* Reposition buttons on resize */
+/* Reposition upload buttons */
 window.addEventListener("resize", updateUploadRowPosition);
 </script>
 
