@@ -139,18 +139,13 @@ function updateUploadRowPosition() {
   const p = mapToDisplayed(frame.x, frame.y);
 
   const buttons = uploadRow.getBoundingClientRect();
-  const wrapperRect = canvasWrapper.getBoundingClientRect();
-
   uploadRow.style.left = p.dx - buttons.width / 2 + "px";
   uploadRow.style.top  = p.dy - buttons.height / 2 + "px";
 }
 
 poster.onload = () => {
-  const w = poster.width;
-  const h = poster.height;
-
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = poster.width;
+  canvas.height = poster.height;
 
   draw();
   updateUploadRowPosition();
@@ -166,13 +161,7 @@ function draw() {
     ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
     ctx.clip();
 
-    // draw image scaled around its center
-    const centerX = posX + (frame.img.width * imgScale)/2;
-    const centerY = posY + (frame.img.height * imgScale)/2;
-
-    ctx.setTransform(imgScale, 0, 0, imgScale, centerX - centerX*imgScale, centerY - centerY*imgScale);
-    ctx.drawImage(frame.img, posX, posY);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(frame.img, posX, posY, frame.img.width * imgScale, frame.img.height * imgScale);
 
     ctx.restore();
   }
@@ -249,9 +238,18 @@ canvas.addEventListener("mousemove", e => {
 canvas.addEventListener("mouseup", () => isDragging = false);
 canvas.addEventListener("mouseleave", () => isDragging = false);
 
-/* Scale */
+/* Scale around center */
 sizeSlider.addEventListener("input", ()=>{
+  if(!frame.img) return;
+
+  const centerX = posX + (frame.img.width * imgScale)/2;
+  const centerY = posY + (frame.img.height * imgScale)/2;
+
   imgScale = parseFloat(sizeSlider.value);
+
+  posX = centerX - (frame.img.width * imgScale)/2;
+  posY = centerY - (frame.img.height * imgScale)/2;
+
   draw();
 });
 
