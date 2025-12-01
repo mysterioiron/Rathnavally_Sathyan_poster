@@ -288,27 +288,10 @@ cameraBtn.addEventListener("click", ()=> imgCameraInput.click());
 downloadBtn.addEventListener("click", () => {
   if (!frame.img) return alert("Upload an image first!");
 
-  draw(); // ensure canvas is current
+  // Ensure the canvas is fully drawn
+  draw();
 
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  const tempCtx = tempCanvas.getContext("2d");
-
-  // Draw poster
-  tempCtx.drawImage(poster, 0, 0, canvas.width, canvas.height);
-
-  // Draw frame image
-  if(frame.img){
-    tempCtx.save();
-    tempCtx.beginPath();
-    tempCtx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
-    tempCtx.clip();
-    tempCtx.drawImage(frame.img, posX, posY, frame.img.width*imgScale, frame.img.height*imgScale);
-    tempCtx.restore();
-  }
-
-  tempCanvas.toBlob(blob => {
+  canvas.toBlob(blob => {
     if(!blob) return alert("Failed to generate image!");
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
