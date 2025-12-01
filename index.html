@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mobile Poster Editor</title>
 
-<!-- Open Graph metadata for WhatsApp/Link Preview -->
 <meta property="og:title" content="Check out my poster!">
 <meta property="og:description" content="Create and download your own poster using this editor.">
 <meta property="og:image" content="https://github.com/RathnavalliSathyan-make-your-poster/poster_generator/blob/main/WhatsApp%20Image%202025-11-22%20at%2007.34.17_e0b8aebb.jpg?raw=true">
 <meta property="og:url" content="https://rathnavallisathyan-make-your-poster.github.io/poster_generator/">
 <meta property="og:type" content="website">
 
-<!-- Optional: Twitter card preview -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Check out my poster!">
 <meta name="twitter:description" content="Create and download your own poster using this editor.">
@@ -23,94 +21,94 @@
 <h2>Upload or Capture a Picture</h2>
 
 <div class="slider-container">
-  <label for="sizeSlider">Size:</label>
-  <input type="range" id="sizeSlider" min="0.3" max="3" step="0.01" value="1">
+  <label for="sizeSlider">Size:</label>
+  <input type="range" id="sizeSlider" min="0.3" max="3" step="0.01" value="1">
 </div>
 
 <div class="canvas-wrapper" id="canvasWrapper">
 
-  <div class="upload-row" id="uploadRow">
-    <label class="upload-btn" for="imgUploadInput">📁 Upload</label>
-    <button id="cameraBtn">📸 Camera</button>
-  </div>
+  <div class="upload-row" id="uploadRow">
+    <label class="upload-btn" for="imgUploadInput">📁 Upload</label>
+    <button id="cameraBtn">📸 Camera</button>
+  </div>
 
-  <canvas id="finalCanvas"></canvas>
+  <canvas id="finalCanvas"></canvas>
 
-  <input type="file" id="imgUploadInput" accept="image/*">
-  <input type="file" id="imgCameraInput" accept="image/*" capture="environment">
+  <input type="file" id="imgUploadInput" accept="image/*">
+  <input type="file" id="imgCameraInput" accept="image/*" capture="environment">
 </div>
 
 <div style="display: flex; gap: 10px;">
-  <button id="downloadBtn">Download</button>
-  <button id="resetBtn">Reset</button>
+  <button id="downloadBtn">Download</button>
+  <button id="resetBtn">Reset</button>
 </div>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  background: #f2f2f2;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #f2f2f2;
 }
 
 .canvas-wrapper {
-  position: relative;
-  display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .upload-row {
-  position: absolute;
-  z-index: 10;
-  background: rgba(255,255,255,0.85);
-  padding: 10px;
-  border-radius: 12px;
-  display: flex;
-  gap: 6px;
+  position: absolute;
+  z-index: 10;
+  background: rgba(255,255,255,0.85);
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  gap: 6px;
 }
 
 .upload-btn, #cameraBtn {
-  background: white;
-  border: 1px solid #bbb;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
+  background: white;
+  border: 1px solid #bbb;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
 }
 .upload-btn:hover, #cameraBtn:hover {
-  background: #f0f0f0;
+  background: #f0f0f0;
 }
 
 input[type="file"] { display: none; }
 
 canvas {
-  width: 95%;
-  height: auto;
-  display: block;
-  touch-action: none;
-  background: #eee;
-  cursor: grab;
+  width: 95%;
+  height: auto;
+  display: block;
+  touch-action: none;
+  background: #eee;
+  cursor: grab;
 }
 
 #downloadBtn, #resetBtn {
-  margin-top: 15px;
-  background: white;
-  border: 1px solid #bbb;
-  padding: 10px 16px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
+  margin-top: 15px;
+  background: white;
+  border: 1px solid #bbb;
+  padding: 10px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 #downloadBtn:hover, #resetBtn:hover {
-  background: #f0f0f0;
+  background: #f0f0f0;
 }
 
 .slider-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>
 
@@ -127,14 +125,16 @@ let downloadCount = 1;
 
 /* POSTER IMAGE */
 const poster = new Image();
+// *** IMPORTANT FIX 1: Set crossOrigin for external images to prevent canvas tainting ***
+poster.crossOrigin = "anonymous"; 
 poster.src = "https://github.com/RathnavalliSathyan-make-your-poster/poster_generator/blob/main/WhatsApp%20Image%202025-11-22%20at%2007.34.17_e0b8aebb.jpg?raw=true";
 
 /* FRAME ON POSTER */
 const frame = {
-  x: 371,
-  y: 1340,
-  r: Math.hypot(592 - 363, 1318 - 1330) * 0.9,
-  img: null
+  x: 371,
+  y: 1340,
+  r: Math.hypot(592 - 363, 1318 - 1330) * 0.9,
+  img: null
 };
 
 let imgScale = 1;
@@ -144,130 +144,130 @@ let startX = 0, startY = 0;
 let lastTouchDistance = null;
 
 function mapToDisplayed(x, y) {
-  const displayWidth = canvas.clientWidth;
-  const factor = displayWidth / canvas.width;
-  return { dx: x * factor, dy: y * factor };
+  const displayWidth = canvas.clientWidth;
+  const factor = displayWidth / canvas.width;
+  return { dx: x * factor, dy: y * factor };
 }
 
 function updateUploadRowPosition() {
-  const p = mapToDisplayed(frame.x, frame.y);
-  const buttons = uploadRow.getBoundingClientRect();
-  uploadRow.style.left = p.dx - buttons.width / 2 + "px";
-  uploadRow.style.top  = p.dy - buttons.height / 2 + "px";
+  const p = mapToDisplayed(frame.x, frame.y);
+  const buttons = uploadRow.getBoundingClientRect();
+  uploadRow.style.left = p.dx - buttons.width / 2 + "px";
+  uploadRow.style.top  = p.dy - buttons.height / 2 + "px";
 }
 
 poster.onload = () => {
-  canvas.width = poster.width;
-  canvas.height = poster.height;
-  draw();
-  updateUploadRowPosition();
+  canvas.width = poster.width;
+  canvas.height = poster.height;
+  draw();
+  updateUploadRowPosition();
 };
 
 function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(poster, 0, 0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(poster, 0, 0);
 
-  if(frame.img){
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
-    ctx.clip();
+  if(frame.img){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
+    ctx.clip();
 
-    ctx.drawImage(
-      frame.img,
-      posX,
-      posY,
-      frame.img.width * imgScale,
-      frame.img.height * imgScale
-    );
+    ctx.drawImage(
+      frame.img,
+      posX,
+      posY,
+      frame.img.width * imgScale,
+      frame.img.height * imgScale
+    );
 
-    ctx.restore();
-  }
+    ctx.restore();
+  }
 
-  ctx.beginPath();
-  ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "#fff";
-  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#fff";
+  ctx.stroke();
 }
 
 function handleImageSelect(e){
-  const file = e.target.files[0];
-  if(!file) return;
+  const file = e.target.files[0];
+  if(!file) return;
 
-  uploadRow.style.display = "none";
+  uploadRow.style.display = "none";
 
-  const img = new Image();
-  img.onload = () => {
-    frame.img = img;
+  const img = new Image();
+  img.onload = () => {
+    frame.img = img;
 
-    imgScale = 1;
-    posX = frame.x - img.width/2;
-    posY = frame.y - img.height/2;
+    imgScale = 1;
+    posX = frame.x - img.width/2;
+    posY = frame.y - img.height/2;
 
-    sizeSlider.value = 1;
-    draw();
-  };
+    sizeSlider.value = 1;
+    draw();
+  };
 
-  img.src = URL.createObjectURL(file);
-  downloadCount = 1;
+  img.src = URL.createObjectURL(file);
+  downloadCount = 1;
 }
 
 /* TOUCH drag */
 canvas.addEventListener("touchstart", e=>{
-  if(!frame.img) return;
-  if(e.touches.length === 1){
-    isDragging = true;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  } else if(e.touches.length === 2){
-    lastTouchDistance = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-  }
+  if(!frame.img) return;
+  if(e.touches.length === 1){
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  } else if(e.touches.length === 2){
+    lastTouchDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
 });
 
 canvas.addEventListener("touchmove", e=>{
-  if(!frame.img || (!isDragging && e.touches.length === 1)) return;
-  e.preventDefault();
+  if(!frame.img || (!isDragging && e.touches.length === 1)) return;
+  e.preventDefault();
 
-  if(e.touches.length === 1 && isDragging){
-    posX += e.touches[0].clientX - startX;
-    posY += e.touches[0].clientY - startY;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  } else if(e.touches.length === 2){
-    const dist = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    if(lastTouchDistance){
-      imgScale *= dist / lastTouchDistance;
-      sizeSlider.value = imgScale;
-    }
-    lastTouchDistance = dist;
-  }
-  draw();
+  if(e.touches.length === 1 && isDragging){
+    posX += e.touches[0].clientX - startX;
+    posY += e.touches[0].clientY - startY;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  } else if(e.touches.length === 2){
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    if(lastTouchDistance){
+      imgScale *= dist / lastTouchDistance;
+      sizeSlider.value = imgScale;
+    }
+    lastTouchDistance = dist;
+  }
+  draw();
 });
 
 canvas.addEventListener("touchend", ()=> { lastTouchDistance = null; isDragging = false; });
 
 /* MOUSE drag for PC */
 canvas.addEventListener("mousedown", e => {
-  if (!frame.img) return;
-  isDragging = true;
-  startX = e.clientX;
-  startY = e.clientY;
+  if (!frame.img) return;
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
 });
 
 canvas.addEventListener("mousemove", e => {
-  if (!frame.img || !isDragging) return;
-  posX += e.clientX - startX;
-  posY += e.clientY - startY;
-  startX = e.clientX;
-  startY = e.clientY;
-  draw();
+  if (!frame.img || !isDragging) return;
+  posX += e.clientX - startX;
+  posY += e.clientY - startY;
+  startX = e.clientX;
+  startY = e.clientY;
+  draw();
 });
 
 canvas.addEventListener("mouseup", () => isDragging = false);
@@ -275,8 +275,8 @@ canvas.addEventListener("mouseleave", () => isDragging = false);
 
 /* Scale */
 sizeSlider.addEventListener("input", ()=> {
-  imgScale = parseFloat(sizeSlider.value);
-  draw();
+  imgScale = parseFloat(sizeSlider.value);
+  draw();
 });
 
 /* Upload handlers */
@@ -284,37 +284,36 @@ imgUploadInput.addEventListener("change", handleImageSelect);
 imgCameraInput.addEventListener("change", handleImageSelect);
 cameraBtn.addEventListener("click", ()=> imgCameraInput.click());
 
-/* FIXED DOWNLOAD BUTTON */
+/* FIXED DOWNLOAD BUTTON - Now using toDataURL for reliable, synchronous download */
 downloadBtn.addEventListener("click", () => {
-  if (!frame.img) return alert("Upload an image first!");
+  if (!frame.img) return alert("Upload an image first!");
 
-  // Ensure the canvas is fully drawn
-  draw();
+  // 1. Ensure the canvas is fully drawn
+  draw();
 
-  canvas.toBlob(blob => {
-    if(!blob) return alert("Failed to generate image!");
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Rathnavalli_Sathyan_" + downloadCount + ".png";
-    downloadCount++;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, "image/png");
+  // 2. Convert canvas to a Data URL (Synchronous)
+  const url = canvas.toDataURL("image/png");
+
+  // 3. Create and click the download link immediately
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Rathnavalli_Sathyan_" + downloadCount + ".png";
+  downloadCount++;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 });
 
 /* Reset */
 resetBtn.addEventListener("click", () => {
-  frame.img = null;
-  uploadRow.style.display = "flex";
-  imgScale = 1;
-  sizeSlider.value = 1;
-  downloadCount = 1;
+  frame.img = null;
+  uploadRow.style.display = "flex";
+  imgScale = 1;
+  sizeSlider.value = 1;
+  downloadCount = 1;
 
-  draw();
-  updateUploadRowPosition();
+  draw();
+  updateUploadRowPosition();
 });
 
 /* Reposition buttons on resize */
