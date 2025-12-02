@@ -183,7 +183,6 @@ function handleImageSelect(e){
   img.onload = () => {
     frame.img = img;
 
-    // Center image in frame
     imgScale = 1;
     posX = frame.x - (img.width * imgScale) / 2;
     posY = frame.y - (img.height * imgScale) / 2;
@@ -196,7 +195,6 @@ function handleImageSelect(e){
   downloadCount = 1;
 }
 
-/* TOUCH drag */
 canvas.addEventListener("touchstart", e=>{
   if(!frame.img) return;
   if(e.touches.length === 1){
@@ -218,7 +216,6 @@ canvas.addEventListener("touchmove", e=>{
 
 canvas.addEventListener("touchend", ()=> isDragging = false);
 
-/* MOUSE drag for PC */
 canvas.addEventListener("mousedown", e => {
   if (!frame.img) return;
   isDragging = true;
@@ -238,7 +235,6 @@ canvas.addEventListener("mousemove", e => {
 canvas.addEventListener("mouseup", () => isDragging = false);
 canvas.addEventListener("mouseleave", () => isDragging = false);
 
-/* Scale around center */
 sizeSlider.addEventListener("input", ()=>{
   if(!frame.img) return;
 
@@ -253,29 +249,36 @@ sizeSlider.addEventListener("input", ()=>{
   draw();
 });
 
-/* Upload handlers */
 imgUploadInput.addEventListener("change", handleImageSelect);
 imgCameraInput.addEventListener("change", handleImageSelect);
 cameraBtn.addEventListener("click", ()=> imgCameraInput.click());
 
-/* HQ Download */
+/* FIXED: UNLIMITED DOWNLOADS */
 downloadBtn.addEventListener("click", () => {
   const fileName =
     "Rathnavalli_Sathyan_" + downloadCount + "_" + Date.now() + ".png";
-
   downloadCount++;
 
-  canvas.toBlob((blob) => {
+  const off = document.createElement("canvas");
+  off.width = canvas.width;
+  off.height = canvas.height;
+  const offCtx = off.getContext("2d");
+
+  offCtx.drawImage(canvas, 0, 0);
+
+  off.toBlob((blob) => {
     const a = document.createElement("a");
     const url = URL.createObjectURL(blob);
     a.href = url;
     a.download = fileName;
+    document.body.appendChild(a);
     a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),500);
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   });
 });
 
-/* Reset */
 resetBtn.addEventListener("click", () => {
   frame.img = null;
   uploadRow.style.display = "flex";
@@ -287,7 +290,6 @@ resetBtn.addEventListener("click", () => {
   updateUploadRowPosition();
 });
 
-/* Reposition buttons on resize */
 window.addEventListener("resize", updateUploadRowPosition);
 </script>
 
