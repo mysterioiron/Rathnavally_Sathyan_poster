@@ -110,12 +110,12 @@ const canvasWrapper = document.getElementById("canvasWrapper");
 
 let downloadCount = 1;
 
-/* POSTER IMAGE (with CORS FIX + RAW GitHub link) */
+/* POSTER IMAGE */
 const poster = new Image();
 poster.crossOrigin = "anonymous";
 poster.src = "poster.jpg";
 
-/* FRAME ON POSTER */
+/* FRAME */
 const frame = {
   x: 371,
   y: 1340,
@@ -135,10 +135,9 @@ function mapToDisplayed(x, y) {
   return { dx: x * factor, dy: y * factor };
 }
 
-/* Center the upload buttons on the circle */
+/* Center upload buttons */
 function updateUploadRowPosition() {
   const p = mapToDisplayed(frame.x, frame.y);
-
   const buttons = uploadRow.getBoundingClientRect();
   uploadRow.style.left = p.dx - buttons.width / 2 + "px";
   uploadRow.style.top  = p.dy - buttons.height / 2 + "px";
@@ -162,7 +161,13 @@ function draw() {
     ctx.arc(frame.x, frame.y, frame.r, 0, Math.PI*2);
     ctx.clip();
 
-    ctx.drawImage(frame.img, posX, posY, frame.img.width * imgScale, frame.img.height * imgScale);
+    ctx.drawImage(
+      frame.img,
+      posX,
+      posY,
+      frame.img.width * imgScale,
+      frame.img.height * imgScale
+    );
 
     ctx.restore();
   }
@@ -196,7 +201,7 @@ function handleImageSelect(e){
   downloadCount = 1;
 }
 
-/* TOUCH/MOUSE DRAG */
+/* DRAG EVENTS */
 canvas.addEventListener("mousedown", e => {
   if (!frame.img) return;
   isDragging = true;
@@ -231,7 +236,7 @@ canvas.addEventListener("touchmove", e=>{
 });
 canvas.addEventListener("touchend", ()=> isDragging = false);
 
-/* Scale around center */
+/* SCALE AROUND CENTER */
 sizeSlider.addEventListener("input", ()=>{
   if(!frame.img) return;
 
@@ -251,31 +256,26 @@ imgUploadInput.addEventListener("change", handleImageSelect);
 imgCameraInput.addEventListener("change", handleImageSelect);
 cameraBtn.addEventListener("click", ()=> imgCameraInput.click());
 
-/* FIXED: REPEATABLE DOWNLOAD */
-downloadBtn.addEventListener("click", () => {
-  const fileName =
-    "Rathnavalli_Sathyan_" + downloadCount + "_" + Date.now() + ".png";
+/* iOS-SAFE DOWNLOAD FIX */
+function mobileSafeDownload() {
+  try {
+    const dataURL = canvas.toDataURL("image/png");
 
-  downloadCount++;
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "poster_" + Date.now() + ".png";
 
-  const off = document.createElement("canvas");
-  off.width = canvas.width;
-  off.height = canvas.height;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-  const offCtx = off.getContext("2d");
-  offCtx.drawImage(canvas, 0, 0);
+  } catch (e) {
+    alert("Your browser blocked the download.");
+  }
+}
 
-  off.toBlob((blob) => {
-    const a = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 2000);
-  });
-});
+/* Download */
+downloadBtn.addEventListener("click", mobileSafeDownload);
 
 /* Reset */
 resetBtn.addEventListener("click", () => {
@@ -289,11 +289,9 @@ resetBtn.addEventListener("click", () => {
   updateUploadRowPosition();
 });
 
-/* Resize → reposition buttons */
+/* Reposition buttons on resize */
 window.addEventListener("resize", updateUploadRowPosition);
 </script>
 
 </body>
 </html>
-
-
